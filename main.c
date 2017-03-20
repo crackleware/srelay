@@ -56,6 +56,7 @@ int threading;
 #endif
 
 int same_interface = 0;
+int local_port = 0;
 
 #ifdef HAVE_LIBWRAP
 int use_tcpwrap = 0;
@@ -106,6 +107,7 @@ void usage()
 	  "\t-t\tdisable threading\n"
 	  "\t-b\tavoid BIND port restriction\n"
 	  "\t-g\tuse the same interface for outbound as inbound\n"
+	  "\t-l port\tuse local port for outgoing connections\n"
 #ifdef HAVE_LIBWRAP
 	  "\t-w\tuse tcp_wrapper access control\n"
 #endif /* HAVE_LIBWRAP */
@@ -434,7 +436,7 @@ int main(int ac, char **av)
 
   openlog(ident, LOG_PID | LOG_NDELAY, SYSLOGFAC);
 
-  while((ch = getopt(ac, av, "a:c:i:x:J:m:o:p:u:frstbwgIqvh?")) != -1)
+  while((ch = getopt(ac, av, "a:c:i:x:J:m:o:p:u:l:frstbwgIqvh?")) != -1)
     switch (ch) {
     case 'a':
       if (optarg != NULL) {
@@ -532,6 +534,10 @@ int main(int ac, char **av)
 
     case 'g':
       same_interface = 1;
+      break;
+
+    case 'l':
+      local_port = atoi(optarg);
       break;
 
     case 'f':

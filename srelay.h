@@ -393,6 +393,7 @@ extern int method_num;
 extern int bind_restrict;
 extern int same_interface;
 extern char *bindout;
+extern int local_port;
 #ifdef HAVE_LIBWRAP
 extern int use_tcpwrap;
 #endif /* HAVE_LIBWRAP */

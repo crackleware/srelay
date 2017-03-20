@@ -1247,9 +1247,22 @@ int forward_connect(SOCKS_STATE *state)
 
     if (same_interface) {
       /* bind the outgoing socket to the same interface
-	 as the inbound client */
+         as the inbound client */
       SET_SOCK_PORT(&ss.ss, 0);
       if (bind(cs, &ss.sa, state->si->myc.len) <0) {
+        /* bind error */
+        error = errno;
+        close(cs);
+        continue;
+      }
+    }
+    
+    if (local_port) {
+      struct sockaddr_in localAddress;
+      socklen_t addressLength = sizeof(localAddress);;
+      getsockname(cs, (struct sockaddr*)&localAddress, &addressLength);
+      localAddress.sin_port = htons(local_port);
+      if (bind(cs, (struct sockaddr*)&localAddress, addressLength) < 0) {
 	/* bind error */
 	error = errno;
 	close(cs);
