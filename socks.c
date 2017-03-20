@@ -1257,12 +1257,20 @@ int forward_connect(SOCKS_STATE *state)
       }
     }
     
-    if (local_port) {
+    if (local_port_range[0] >= 0 && local_port_range[1] >= 0) {
       struct sockaddr_in localAddress;
       socklen_t addressLength = sizeof(localAddress);;
       getsockname(cs, (struct sockaddr*)&localAddress, &addressLength);
-      localAddress.sin_port = htons(local_port);
-      if (bind(cs, (struct sockaddr*)&localAddress, addressLength) < 0) {
+      int ok = 0;
+      int p;
+      for (p = local_port_range[0]; p < local_port_range[1]; p++) {
+        localAddress.sin_port = htons(p);
+        if (bind(cs, (struct sockaddr*)&localAddress, addressLength) == 0) {
+          ok = 1;
+          break;
+        }
+      }
+      if (!ok) {
 	/* bind error */
 	error = errno;
 	close(cs);

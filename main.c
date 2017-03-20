@@ -56,7 +56,7 @@ int threading;
 #endif
 
 int same_interface = 0;
-int local_port = 0;
+int local_port_range[2] = {-1, -1};
 
 #ifdef HAVE_LIBWRAP
 int use_tcpwrap = 0;
@@ -107,7 +107,7 @@ void usage()
 	  "\t-t\tdisable threading\n"
 	  "\t-b\tavoid BIND port restriction\n"
 	  "\t-g\tuse the same interface for outbound as inbound\n"
-	  "\t-l port\tuse local port for outgoing connections\n"
+	  "\t-l port-port\tuse local port range for outgoing connections\n"
 #ifdef HAVE_LIBWRAP
 	  "\t-w\tuse tcp_wrapper access control\n"
 #endif /* HAVE_LIBWRAP */
@@ -537,7 +537,18 @@ int main(int ac, char **av)
       break;
 
     case 'l':
-      local_port = atoi(optarg);
+      {
+        char* s = strdup(optarg);
+        char* delim = strstr(s, "-");
+        if (!delim) {
+          printf("bad port range\n");
+          exit(1);
+        }
+        *delim++ = 0;
+        local_port_range[0] = atoi(s);
+        local_port_range[1] = atoi(delim);
+        free(s);
+      }
       break;
 
     case 'f':
